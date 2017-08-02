@@ -104,7 +104,8 @@ for i in $(docker network inspect $DOCKER_FRONTEND_NETWORK | grep Name | sed 1d 
          echo -e "[ ${CRED}ERR$CEND ] ${CYELLOW}https://$URL$CEND is still ${CRED}KO$CEND with http code : $RESULT2. Please check $i !" >> $LOG_TEMP
          if [ ! -f $NOTIFIED_LIST ] || [[ ! " $(cat $NOTIFIED_LIST) " =~ " $i " ]]; then
            docker logs $i > $DOCKER_SCRIPT_LOG_FILE 2>/dev/null
-           telegram --error --text "https://"$URL" is DOWN\nhttp code "$RESULT2"\nPlease check logs.\n "$i" restarted unsuccessfully." --document $DOCKER_SCRIPT_LOG_FILE
+	      	   MESSAGE="https://"$URL" is DOWN\nhttp code "$RESULT2"\nPlease check logs.\n "$i" restarted unsuccessfully."
+           telegram --error --text $MESSAGE --document $DOCKER_SCRIPT_LOG_FILE
            echo $i >> $NOTIFIED_LIST
          fi
        else
