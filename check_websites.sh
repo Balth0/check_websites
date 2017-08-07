@@ -33,6 +33,8 @@
 #   Baltho ( cg.cpam@gmail.com )
 #
 # Versions :
+#   - 2017-08-07: v1.1.2 :
+#         - Add a timeout option to avoid the script running for too long (see TIMEOUT var).
 #   - 2017-08-01: v1.1.1 :
 #         - Get URL optimizations : no need to specify proxy's name. The script is 
 #                             now looking first for custom label and next for traefik
@@ -46,6 +48,9 @@
 #                             You cant see details of the last test on the .last file
 #                             stored on the same location thant the log file.
 #   - 2017-07-28: v1.0 - First release.
+
+# Timeout delay in seconds before check if considered KO
+TIMEOUT=60
 
 # Set the name of the docker's front-end network :
 DOCKER_FRONTEND_NETWORK=traefik-proxy
@@ -96,7 +101,7 @@ for i in $(docker network inspect $DOCKER_FRONTEND_NETWORK | grep Name | sed 1d 
    DOCKER_SCRIPT_LOG_FILE=$LOGS_PATH/cw_$i.log
    if [ ! -z "$URL" ]; then
      # If there is a URL on that container, get http code associated
-     RESULT=$(curl -s -o /dev/null -w "%{http_code}" -L $URL)
+     RESULT=$(curl -s -o /dev/null -m $TIMEOUT -w "%{http_code}" -L $URL)
      if [ "$RESULT" != "200" ]; then
 	   # If website is KO, restart the container
        echo -e "[ ${CRED}KO$CEND ] ${CYELLOW}https://$URL$CEND down with code $RESULT. Try restarting container $i..." >> $LOG_TEMP
